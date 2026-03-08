@@ -9,12 +9,12 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import java.util.*
 
-class UserRepository : IUserRepository {
+class UserRepository(private val baseUrl: String) : IUserRepository {
     override suspend fun getById(userId: String): User? = suspendTransaction {
         UserDAO
             .find { (UserTable.id eq UUID.fromString(userId)) }
             .limit(1)
-            .map(::userDAOToModel)
+            .map{ userDAOToModel(it, baseUrl) }
             .firstOrNull()
     }
 
@@ -22,7 +22,7 @@ class UserRepository : IUserRepository {
         UserDAO
             .find { (UserTable.username eq username) }
             .limit(1)
-            .map(::userDAOToModel)
+            .map{ userDAOToModel(it, baseUrl) }
             .firstOrNull()
     }
 

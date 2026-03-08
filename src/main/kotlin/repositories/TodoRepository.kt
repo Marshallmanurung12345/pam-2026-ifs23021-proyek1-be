@@ -12,7 +12,7 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.lowerCase
 import java.util.*
 
-class TodoRepository : ITodoRepository {
+class TodoRepository(private val baseUrl: String) : ITodoRepository {
     override suspend fun getAll(userId: String, search: String): List<Todo> = suspendTransaction {
         if (search.isBlank()) {
             TodoDAO
@@ -20,7 +20,7 @@ class TodoRepository : ITodoRepository {
                     (TodoTable.userId eq UUID.fromString(userId))
                 }
                 .orderBy(TodoTable.createdAt to SortOrder.DESC)
-                .map(::todoDAOToModel)
+                .map{ todoDAOToModel(it, baseUrl) }
         } else {
             val keyword = "%${search.lowercase()}%"
 
@@ -29,7 +29,7 @@ class TodoRepository : ITodoRepository {
                     TodoTable.title.lowerCase() like keyword
                 }
                 .orderBy(TodoTable.title to SortOrder.ASC)
-                .map(::todoDAOToModel)
+                .map{ todoDAOToModel(it, baseUrl) }
         }
     }
 
@@ -39,7 +39,7 @@ class TodoRepository : ITodoRepository {
                 (TodoTable.id eq UUID.fromString(todoId))
             }
             .limit(1)
-            .map(::todoDAOToModel)
+            .map{ todoDAOToModel(it, baseUrl) }
             .firstOrNull()
     }
 

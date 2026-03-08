@@ -104,13 +104,11 @@ class UserService(
                     val fileName = UUID.randomUUID().toString() + ext
                     val filePath = "uploads/users/$fileName"
 
-                    withContext(Dispatchers.IO) {
-                        val file = File(filePath)
-                        file.parentFile.mkdirs() // pastikan folder ada
+                    val file = File(filePath)
+                    file.parentFile.mkdirs() // pastikan folder ada
 
-                        part.provider().copyAndClose(file.writeChannel())
-                        newPhoto = filePath
-                    }
+                    part.provider().copyAndClose(file.writeChannel())
+                    newPhoto = filePath
                 }
 
                 else -> {}

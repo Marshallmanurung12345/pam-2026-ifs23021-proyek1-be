@@ -12,7 +12,8 @@ data class User(
     var name: String,
     var username: String,
     var password: String,
-    var photo: String? = null,
+    var photo: String? = null, // Path relatif file di server
+    var urlPhoto: String = "", // URL publik yang dapat diakses langsung
 
     @Contextual
     val createdAt: Instant = Clock.System.now(),

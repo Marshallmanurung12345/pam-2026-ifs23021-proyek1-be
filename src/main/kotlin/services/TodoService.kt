@@ -85,13 +85,11 @@ class TodoService(
                     val fileName = UUID.randomUUID().toString() + ext
                     val filePath = "uploads/todos/$fileName"
 
-                    withContext(Dispatchers.IO) {
-                        val file = File(filePath)
-                        file.parentFile.mkdirs() // pastikan folder ada
+                    val file = File(filePath)
+                    file.parentFile.mkdirs() // pastikan folder ada
 
-                        part.provider().copyAndClose(file.writeChannel())
-                        request.cover = filePath
-                    }
+                    part.provider().copyAndClose(file.writeChannel())
+                    request.cover = filePath
                 }
 
                 else -> {}
