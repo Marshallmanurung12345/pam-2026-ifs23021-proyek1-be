@@ -1,40 +1,88 @@
-# pam-2026-p4-ifs18005-be
+# pam-2026-p5-laundry-be
 
-This project was created using the [Ktor Project Generator](https://start.ktor.io).
+Backend API untuk Aplikasi Manajemen Laundry, dibangun menggunakan [Ktor](https://ktor.io/).
 
-Here are some useful links to get you started:
+## Fitur
 
-- [Ktor Documentation](https://ktor.io/docs/home.html)
-- [Ktor GitHub page](https://github.com/ktorio/ktor)
-- The [Ktor Slack chat](https://app.slack.com/client/T09229ZC6/C0A974TJ9). You'll need
-  to [request an invite](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up) to join.
+- **Autentikasi** — Register, Login, Refresh Token, Logout (JWT)
+- **Manajemen Akun** — Lihat profil, ubah profil, ubah password, ubah foto
+- **Layanan Laundry** — CRUD jenis layanan (cuci kiloan, dry clean, dll.) + upload gambar + filter aktif/nonaktif + pencarian
+- **Pesanan Laundry** — CRUD pesanan + update status + pagination (infinite scroll) + filter status + pencarian nama pelanggan
 
-## Features
+## Struktur Endpoint
 
-Here's a list of features included in this project:
+| Method | Endpoint | Keterangan |
+|--------|----------|------------|
+| POST | `/auth/register` | Daftar akun baru |
+| POST | `/auth/login` | Login |
+| POST | `/auth/refresh-token` | Perbarui token |
+| POST | `/auth/logout` | Logout |
+| GET | `/users/me` | Info akun saya |
+| PUT | `/users/me` | Ubah profil |
+| PUT | `/users/me/password` | Ubah kata sandi |
+| PUT | `/users/me/photo` | Ubah foto profil |
+| GET | `/images/users/{id}` | Ambil foto user |
+| GET | `/laundry-services` | Daftar layanan (`?search=&isActive=`) |
+| POST | `/laundry-services` | Tambah layanan |
+| GET | `/laundry-services/{id}` | Detail layanan |
+| PUT | `/laundry-services/{id}` | Ubah layanan |
+| PUT | `/laundry-services/{id}/image` | Ubah gambar layanan |
+| DELETE | `/laundry-services/{id}` | Hapus layanan |
+| GET | `/images/laundry-services/{id}` | Ambil gambar layanan |
+| GET | `/laundry-orders` | Daftar pesanan (`?search=&status=&page=&limit=`) |
+| POST | `/laundry-orders` | Tambah pesanan |
+| GET | `/laundry-orders/{id}` | Detail pesanan |
+| PUT | `/laundry-orders/{id}` | Ubah pesanan |
+| PUT | `/laundry-orders/{id}/status` | Ubah status pesanan |
+| DELETE | `/laundry-orders/{id}` | Hapus pesanan |
 
-| Name                                               | Description                                                 |
-|----------------------------------------------------|-------------------------------------------------------------|
-| [Routing](https://start.ktor.io/p/routing-default) | Allows to define structured routes and associated handlers. |
+## Status Pesanan
 
-## Building & Running
+| Status | Keterangan |
+|--------|------------|
+| `pending` | Menunggu konfirmasi |
+| `processing` | Sedang diproses |
+| `done` | Selesai dicuci |
+| `delivered` | Sudah diambil/dikirim |
+| `cancelled` | Dibatalkan |
 
-To build or run the project, use one of the following tasks:
+## Setup
 
-| Task                                    | Description                                                          |
-|-----------------------------------------|----------------------------------------------------------------------|
-| `./gradlew test`                        | Run the tests                                                        |
-| `./gradlew build`                       | Build everything                                                     |
-| `./gradlew buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
-| `./gradlew buildImage`                  | Build the docker image to use with the fat JAR                       |
-| `./gradlew publishImageToLocalRegistry` | Publish the docker image locally                                     |
-| `./gradlew run`                         | Run the server                                                       |
-| `./gradlew runDocker`                   | Run using the local docker image                                     |
+### 1. Buat database PostgreSQL
 
-If the server starts successfully, you'll see the following output:
-
+```sql
+CREATE DATABASE db_laundry;
 ```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
+
+Lalu jalankan `data.sql` untuk membuat tabel:
+
+```bash
+psql -U postgres -d db_laundry -f data.sql
 ```
 
+### 2. Buat file `.env`
+
+Salin dari `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+Isi sesuai konfigurasi lokal Anda.
+
+### 3. Jalankan server
+
+```bash
+./gradlew run
+```
+
+Server berjalan di `http://localhost:8000`
+
+## Build & Run
+
+| Task | Keterangan |
+|------|------------|
+| `./gradlew run` | Jalankan server |
+| `./gradlew build` | Build project |
+| `./gradlew buildFatJar` | Build JAR dengan semua dependensi |
+| `./gradlew test` | Jalankan tests |

@@ -1,5 +1,5 @@
 ## Global Variabel
-#@BaseUrl = https://pam-2026-p5-ifs18005-be.delcom.org:8080
+#@BaseUrl = https://pam-2026-p5-laundry-be.delcom.org:8080
 @BaseUrl = http://127.0.0.1:8000
 
 ### ---------------------------------------
@@ -14,7 +14,7 @@ Content-Type: application/json
 {
   "name": "Tester",
   "username": "tester",
-  "password": "tester"
+  "password": "tester123"
 }
 
 ### Masuk ke layanan
@@ -24,7 +24,7 @@ Content-Type: application/json
 
 {
   "username": "tester",
-  "password": "tester"
+  "password": "tester123"
 }
 
 > {%
@@ -32,7 +32,7 @@ Content-Type: application/json
     client.global.set("refreshToken", response.body.data.refreshToken);
 %}
 
-### Masuk ke layanan
+### Refresh Token
 # @name PostRefreshToken
 POST {{BaseUrl}}/auth/refresh-token
 Content-Type: application/json
@@ -47,7 +47,7 @@ Content-Type: application/json
     client.global.set("refreshToken", response.body.data.refreshToken);
 %}
 
-### Keluar dari layanan (skip run)
+### Logout
 # @name PostLogout
 POST {{BaseUrl}}/auth/logout
 Content-Type: application/json
@@ -88,8 +88,8 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "newPassword": "tester",
-  "password": "tester"
+  "password": "tester123",
+  "newPassword": "tester123"
 }
 
 ### Mengubah photo profile
@@ -105,78 +105,165 @@ Content-Type: image/png
 < ./uploads/examples/me.png
 --WebAppBoundary--
 
-### Mengambil data tumbuhan berdasarkan id-nya
-@userId = 00ed9d33-61b0-48b7-a32a-6510af028731
+### Mengambil foto user berdasarkan ID
+@userId = 00000000-0000-0000-0000-000000000000
 
-# @name GetMyPhoto
+# @name GetUserPhoto
 GET {{BaseUrl}}/images/users/{{userId}}
 Authorization: Bearer {{authToken}}
-Content-Type: application/json
 
 ### ---------------------------------------
-## Todos
+## Laundry Services (Jenis Layanan)
 ### ---------------------------------------
 
-### Mengambil semua data todo user saat ini
-# @name GetTodos
-GET {{BaseUrl}}/todos?search=
+### Mengambil semua layanan laundry
+# @name GetLaundryServices
+GET {{BaseUrl}}/laundry-services?search=&isActive=true
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
-### Menambahkan todo
-# @name PostTodos
-POST {{BaseUrl}}/todos
+### Menambahkan layanan laundry
+# @name PostLaundryService
+POST {{BaseUrl}}/laundry-services
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "title": "Judul Todo",
-  "description": "Deskripsi Todo"
+  "name": "Cuci Kiloan",
+  "description": "Layanan cuci pakaian per kilogram, mencuci dan menyetrika",
+  "price": 7000,
+  "unit": "kg",
+  "estimatedDays": 2,
+  "isActive": true
 }
 
 > {%
-    client.global.set("todoId", response.body.data.todoId);
+    client.global.set("serviceId", response.body.data.serviceId);
 %}
 
-### Mengambil todo dengan id
-# @name GetTodoById
-GET {{BaseUrl}}/todos/{{todoId}}
+### Mengambil layanan laundry berdasarkan ID
+# @name GetLaundryServiceById
+GET {{BaseUrl}}/laundry-services/{{serviceId}}
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
-### Mengubah todo
-# @name PutTodo
-PUT {{BaseUrl}}/todos/{{todoId}}
+### Mengubah layanan laundry
+# @name PutLaundryService
+PUT {{BaseUrl}}/laundry-services/{{serviceId}}
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "title": "Judul Todo",
-  "description": "Deskripsi Todo",
-  "isDone": true
+  "name": "Cuci Kiloan Express",
+  "description": "Layanan cuci kilat, selesai dalam 1 hari",
+  "price": 12000,
+  "unit": "kg",
+  "estimatedDays": 1,
+  "isActive": true
 }
 
-### Mengubah cover todo
-# @name PutTodoCover
-PUT {{BaseUrl}}/todos/{{todoId}}/cover
+### Mengubah gambar layanan laundry
+# @name PutLaundryServiceImage
+PUT {{BaseUrl}}/laundry-services/{{serviceId}}/image
 Authorization: Bearer {{authToken}}
 Content-Type: multipart/form-data; boundary=WebAppBoundary
 
 --WebAppBoundary
-Content-Disposition: form-data; name="file"; filename="example.png"
+Content-Disposition: form-data; name="file"; filename="service.png"
 Content-Type: image/png
 
 < ./uploads/examples/me.png
 --WebAppBoundary--
 
-### Mengambil cover todo
-# @name GetTodoCover
-GET {{BaseUrl}}/images/todos/{{todoId}}
+### Mengambil gambar layanan laundry
+# @name GetLaundryServiceImage
+GET {{BaseUrl}}/images/laundry-services/{{serviceId}}
+Authorization: Bearer {{authToken}}
+
+### Menghapus layanan laundry
+# @name DeleteLaundryService
+DELETE {{BaseUrl}}/laundry-services/{{serviceId}}
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
-### Menghapus todo
-# @name DeleteTodo
-DELETE {{BaseUrl}}/todos/{{todoId}}
+### ---------------------------------------
+## Laundry Orders (Pesanan)
+### ---------------------------------------
+
+### Mengambil semua pesanan laundry (dengan pagination & filter)
+# @name GetLaundryOrders
+GET {{BaseUrl}}/laundry-orders?search=&status=&page=1&limit=10
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+### Menambahkan pesanan laundry
+# @name PostLaundryOrder
+POST {{BaseUrl}}/laundry-orders
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "serviceId": "{{serviceId}}",
+  "customerName": "Budi Santoso",
+  "customerPhone": "081234567890",
+  "quantity": 3.5,
+  "totalPrice": 24500,
+  "notes": "Pakaian warna putih dipisah",
+  "pickupDate": "2026-03-20T08:00:00Z",
+  "deliveryDate": "2026-03-22T08:00:00Z"
+}
+
+> {%
+    client.global.set("orderId", response.body.data.orderId);
+%}
+
+### Mengambil pesanan laundry berdasarkan ID
+# @name GetLaundryOrderById
+GET {{BaseUrl}}/laundry-orders/{{orderId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+### Mengubah pesanan laundry
+# @name PutLaundryOrder
+PUT {{BaseUrl}}/laundry-orders/{{orderId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "serviceId": "{{serviceId}}",
+  "customerName": "Budi Santoso Update",
+  "customerPhone": "081234567890",
+  "quantity": 4.0,
+  "totalPrice": 28000,
+  "notes": "Tolong lipat rapi",
+  "pickupDate": "2026-03-20T08:00:00Z",
+  "deliveryDate": "2026-03-22T08:00:00Z"
+}
+
+### Mengubah status pesanan laundry
+# @name PutLaundryOrderStatus
+PUT {{BaseUrl}}/laundry-orders/{{orderId}}/status
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "status": "processing"
+}
+
+### Filter pesanan berdasarkan status
+# @name GetLaundryOrdersByStatus
+GET {{BaseUrl}}/laundry-orders?status=pending&page=1&limit=10
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+### Pencarian pesanan berdasarkan nama pelanggan
+# @name SearchLaundryOrders
+GET {{BaseUrl}}/laundry-orders?search=Budi&page=1&limit=10
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+### Menghapus pesanan laundry
+# @name DeleteLaundryOrder
+DELETE {{BaseUrl}}/laundry-orders/{{orderId}}
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
