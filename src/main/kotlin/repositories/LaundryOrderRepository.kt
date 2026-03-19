@@ -1,5 +1,7 @@
 package org.delcom.repositories
 
+// Tambahkan baris ini setelah import SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.delcom.dao.LaundryOrderDAO
 import org.delcom.dao.LaundryServiceDAO
 import org.delcom.entities.LaundryOrder
@@ -44,7 +46,9 @@ class LaundryOrderRepository : ILaundryOrderRepository {
         LaundryOrderDAO
             .find { condition }
             .orderBy(LaundryOrderTable.createdAt to SortOrder.DESC)
-            .limit(limit, offset)
+            // SESUDAH (ganti dengan ini):
+            .limit(limit)
+            .offset(offset)
             .map { orderDAO ->
                 val serviceName = LaundryServiceDAO
                     .find { LaundryServiceTable.id eq orderDAO.serviceId }
