@@ -10,23 +10,18 @@ data class AuthRequest(
     var username: String = "",
     var password: String = "",
     var newPassword: String = "",
-){
-    fun toMap(): Map<String, Any?> {
-        return mapOf(
-            "name" to name,
-            "username" to username,
-            "password" to password,
-            "newPassword" to newPassword
-        )
-    }
+) {
+    fun toMap(): Map<String, Any?> = mapOf(
+        "name" to name,
+        "username" to username,
+        "password" to password,
+        "newPassword" to newPassword
+    )
 
-    fun toEntity(): User {
-        return User(
-            name = name,
-            username = username,
-            password = password,
-            updatedAt = Clock.System.now()
-        )
-    }
-
+    fun toEntity(): User = User(
+        name = name,
+        username = username,
+        password = password,
+        updatedAt = Clock.System.now()
+    )
 }

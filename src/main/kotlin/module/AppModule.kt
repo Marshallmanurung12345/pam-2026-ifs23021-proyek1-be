@@ -1,49 +1,32 @@
 package org.delcom.module
 
+import io.ktor.server.application.*
 import org.delcom.repositories.*
 import org.delcom.services.AuthService
-import org.delcom.services.TodoService
+import org.delcom.services.LaundryOrderService
+import org.delcom.services.LaundryServiceService
 import org.delcom.services.UserService
 import org.koin.dsl.module
-import io.ktor.server.application.*
 
 fun appModule(application: Application) = module {
     val baseUrl = application.environment.config
         .property("ktor.app.baseUrl")
         .getString()
-        .trimEnd('/')   // Pastikan tidak ada trailing slash
+        .trimEnd('/')
 
     val jwtSecret = application.environment.config
         .property("ktor.jwt.secret")
         .getString()
 
-    // User Repository
-    single<IUserRepository> {
-        UserRepository(baseUrl)
-    }
+    // Repositories
+    single<IUserRepository> { UserRepository(baseUrl) }
+    single<IRefreshTokenRepository> { RefreshTokenRepository() }
+    single<ILaundryServiceRepository> { LaundryServiceRepository(baseUrl) }
+    single<ILaundryOrderRepository> { LaundryOrderRepository() }
 
-    // User Service
-    single {
-        UserService(get(), get())
-    }
-
-    // Refresh Token Repository
-    single<IRefreshTokenRepository> {
-        RefreshTokenRepository()
-    }
-
-    // Auth Service
-    single {
-        AuthService(jwtSecret, get(), get())
-    }
-
-    // Plant Repository
-    single<ITodoRepository> {
-        TodoRepository(baseUrl)
-    }
-
-    // Plant Service
-    single {
-        TodoService(get(), get())
-    }
+    // Services
+    single { UserService(get(), get()) }
+    single { AuthService(jwtSecret, get(), get()) }
+    single { LaundryServiceService(get(), get()) }
+    single { LaundryOrderService(get(), get(), get()) }
 }

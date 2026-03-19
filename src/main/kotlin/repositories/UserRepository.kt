@@ -10,19 +10,20 @@ import org.jetbrains.exposed.sql.deleteWhere
 import java.util.*
 
 class UserRepository(private val baseUrl: String) : IUserRepository {
+
     override suspend fun getById(userId: String): User? = suspendTransaction {
         UserDAO
-            .find { (UserTable.id eq UUID.fromString(userId)) }
+            .find { UserTable.id eq UUID.fromString(userId) }
             .limit(1)
-            .map{ userDAOToModel(it, baseUrl) }
+            .map { userDAOToModel(it, baseUrl) }
             .firstOrNull()
     }
 
     override suspend fun getByUsername(username: String): User? = suspendTransaction {
         UserDAO
-            .find { (UserTable.username eq username) }
+            .find { UserTable.username eq username }
             .limit(1)
-            .map{ userDAOToModel(it, baseUrl) }
+            .map { userDAOToModel(it, baseUrl) }
             .firstOrNull()
     }
 
@@ -34,7 +35,6 @@ class UserRepository(private val baseUrl: String) : IUserRepository {
             createdAt = user.createdAt
             updatedAt = user.updatedAt
         }
-
         userDAO.id.value.toString()
     }
 
@@ -51,9 +51,7 @@ class UserRepository(private val baseUrl: String) : IUserRepository {
             userDAO.photo = newUser.photo
             userDAO.updatedAt = newUser.updatedAt
             true
-        } else {
-            false
-        }
+        } else false
     }
 
     override suspend fun delete(id: String): Boolean = suspendTransaction {
@@ -62,5 +60,4 @@ class UserRepository(private val baseUrl: String) : IUserRepository {
         }
         rowsDeleted >= 1
     }
-
 }

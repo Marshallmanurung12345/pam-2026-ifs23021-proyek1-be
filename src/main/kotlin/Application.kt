@@ -74,7 +74,6 @@ fun Application.module() {
     install(CORS) {
         anyHost()
 
-        // HTTP Methods
         allowMethod(HttpMethod.Get)
         allowMethod(HttpMethod.Post)
         allowMethod(HttpMethod.Put)
@@ -82,17 +81,13 @@ fun Application.module() {
         allowMethod(HttpMethod.Patch)
         allowMethod(HttpMethod.Options)
 
-        // Headers yang umum dikirim browser
         allowHeader(HttpHeaders.ContentType)
         allowHeader(HttpHeaders.Authorization)
         allowHeader(HttpHeaders.Accept)
         allowHeader(HttpHeaders.Origin)
         allowHeader(HttpHeaders.AccessControlAllowOrigin)
 
-        // Izinkan credentials (cookie/token) jika diperlukan
         allowCredentials = true
-
-        // Izinkan browser membaca header response ini
         exposeHeader(HttpHeaders.ContentDisposition)
     }
 
@@ -108,11 +103,10 @@ fun Application.module() {
 
     install(Koin) {
         slf4jLogger()
-        // Teruskan instance Application ke appModule agar bisa membaca baseUrl dan jwtSecret
         modules(appModule(this@module))
     }
 
     configureDatabases()
-    configureStaticFiles()   // Daftarkan folder uploads/ sebagai file statis publik
+    configureStaticFiles()
     configureRouting()
 }

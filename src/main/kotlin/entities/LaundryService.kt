@@ -7,14 +7,17 @@ import kotlinx.serialization.Serializable
 import java.util.UUID
 
 @Serializable
-data class Todo(
-    var id : String = UUID.randomUUID().toString(),
-    var userId : String,
-    var title: String,
+data class LaundryService(
+    var id: String = UUID.randomUUID().toString(),
+    var userId: String,
+    var name: String,
     var description: String,
-    var isDone: Boolean = false,
-    var cover: String?,
-    var urlCover: String = "",
+    var price: Double,
+    var unit: String,
+    var estimatedDays: Int,
+    var image: String? = null,
+    var urlImage: String = "",
+    var isActive: Boolean = true,
 
     @Contextual
     val createdAt: Instant = Clock.System.now(),

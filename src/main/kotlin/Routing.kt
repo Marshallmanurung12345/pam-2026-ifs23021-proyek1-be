@@ -10,18 +10,19 @@ import org.delcom.data.AppException
 import org.delcom.data.ErrorResponse
 import org.delcom.helpers.JWTConstants
 import org.delcom.helpers.parseMessageToMap
-import org.delcom.services.TodoService
 import org.delcom.services.AuthService
+import org.delcom.services.LaundryOrderService
+import org.delcom.services.LaundryServiceService
 import org.delcom.services.UserService
 import org.koin.ktor.ext.inject
 
 fun Application.configureRouting() {
-    val todoService: TodoService by inject()
     val authService: AuthService by inject()
     val userService: UserService by inject()
+    val laundryServiceService: LaundryServiceService by inject()
+    val laundryOrderService: LaundryOrderService by inject()
 
     install(StatusPages) {
-        // Tangkap AppException
         exception<AppException> { call, cause ->
             val dataMap: Map<String, List<String>> = parseMessageToMap(cause.message)
 
@@ -35,7 +36,6 @@ fun Application.configureRouting() {
             )
         }
 
-        // Tangkap semua Throwable lainnya
         exception<Throwable> { call, cause ->
             call.respond(
                 status = HttpStatusCode.fromValue(500),
@@ -50,7 +50,7 @@ fun Application.configureRouting() {
 
     routing {
         get("/") {
-            call.respondText("API telah berjalan. Dibuat oleh Abdullah Ubaid.")
+            call.respondText("API Laundry telah berjalan.")
         }
 
         // Route Auth
@@ -64,7 +64,6 @@ fun Application.configureRouting() {
             post("/refresh-token") {
                 authService.postRefreshToken(call)
             }
-
             post("/logout") {
                 authService.postLogout(call)
             }
@@ -87,38 +86,58 @@ fun Application.configureRouting() {
                 }
             }
 
-            // Route Todos
-            route("/todos") {
+            // Route Laundry Services (jenis layanan)
+            route("/laundry-services") {
                 get {
-                    todoService.getAll(call)
+                    laundryServiceService.getAll(call)
                 }
                 post {
-                    todoService.post(call)
+                    laundryServiceService.post(call)
                 }
                 get("/{id}") {
-                    todoService.getById(call)
+                    laundryServiceService.getById(call)
                 }
                 put("/{id}") {
-                    todoService.put(call)
+                    laundryServiceService.put(call)
                 }
-                put("/{id}/cover") {
-                    todoService.putCover(call)
+                put("/{id}/image") {
+                    laundryServiceService.putImage(call)
                 }
                 delete("/{id}") {
-                    todoService.delete(call)
+                    laundryServiceService.delete(call)
+                }
+            }
+
+            // Route Laundry Orders (pesanan)
+            route("/laundry-orders") {
+                get {
+                    laundryOrderService.getAll(call)
+                }
+                post {
+                    laundryOrderService.post(call)
+                }
+                get("/{id}") {
+                    laundryOrderService.getById(call)
+                }
+                put("/{id}") {
+                    laundryOrderService.put(call)
+                }
+                put("/{id}/status") {
+                    laundryOrderService.putStatus(call)
+                }
+                delete("/{id}") {
+                    laundryOrderService.delete(call)
                 }
             }
         }
 
         route("/images") {
-            get("users/{id}") {
+            get("/users/{id}") {
                 userService.getPhoto(call)
             }
-
-            get("todos/{id}") {
-                todoService.getCover(call)
+            get("/laundry-services/{id}") {
+                laundryServiceService.getImage(call)
             }
         }
-
     }
 }

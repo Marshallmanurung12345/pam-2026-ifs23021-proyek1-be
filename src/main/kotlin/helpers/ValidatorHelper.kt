@@ -14,32 +14,44 @@ class ValidatorHelper(private val data: Map<String, Any?>) {
     fun required(field: String, message: String? = null) {
         val value = data[field]
         if (value == null || (value is String && value.isBlank())) {
-            addError(field,message ?: "$field is required")
+            addError(field, message ?: "$field is required")
         }
     }
 
     fun minLength(field: String, min: Int, message: String? = null) {
         val value = data[field]
         if (value is String && value.length < min) {
-            addError(field,message ?: "$field must be at least $min characters")
+            addError(field, message ?: "$field must be at least $min characters")
         }
     }
 
     fun maxLength(field: String, max: Int, message: String? = null) {
         val value = data[field]
         if (value is String && value.length > max) {
-            addError(field,message ?: "$field must be at most $max characters")
+            addError(field, message ?: "$field must be at most $max characters")
+        }
+    }
+
+    fun minValue(field: String, min: Double, message: String? = null) {
+        val value = data[field]
+        if (value is Number && value.toDouble() < min) {
+            addError(field, message ?: "$field must be at least $min")
+        }
+    }
+
+    fun isIn(field: String, allowed: List<String>, message: String? = null) {
+        val value = data[field]
+        if (value is String && !allowed.contains(value)) {
+            addError(field, message ?: "$field must be one of: ${allowed.joinToString(", ")}")
         }
     }
 
     fun email(field: String, message: String? = null) {
         val value = data[field]
         if (value is String) {
-            val pattern = Pattern.compile(
-                "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"
-            )
+            val pattern = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
             if (!pattern.matcher(value).matches()) {
-                addError(field,message ?: "$field must be a valid email")
+                addError(field, message ?: "$field must be a valid email")
             }
         }
     }

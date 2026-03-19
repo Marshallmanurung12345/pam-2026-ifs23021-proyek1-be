@@ -8,8 +8,8 @@ import java.util.UUID
 
 @Serializable
 data class RefreshToken(
-    var id : String = UUID.randomUUID().toString(),
-    var userId : String,
+    var id: String = UUID.randomUUID().toString(),
+    var userId: String,
     var refreshToken: String,
     var authToken: String,
 

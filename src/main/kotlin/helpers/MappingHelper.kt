@@ -1,10 +1,12 @@
 package org.delcom.helpers
 
 import kotlinx.coroutines.Dispatchers
-import org.delcom.dao.TodoDAO
+import org.delcom.dao.LaundryOrderDAO
+import org.delcom.dao.LaundryServiceDAO
 import org.delcom.dao.RefreshTokenDAO
 import org.delcom.dao.UserDAO
-import org.delcom.entities.Todo
+import org.delcom.entities.LaundryOrder
+import org.delcom.entities.LaundryService
 import org.delcom.entities.RefreshToken
 import org.delcom.entities.User
 import org.jetbrains.exposed.sql.Transaction
@@ -25,35 +27,46 @@ fun userDAOToModel(dao: UserDAO, baseUrl: String) = User(
 )
 
 fun refreshTokenDAOToModel(dao: RefreshTokenDAO) = RefreshToken(
-    dao.id.value.toString(),
-    dao.userId.toString(),
-    dao.refreshToken,
-    dao.authToken,
-    dao.createdAt,
-)
-
-fun todoDAOToModel(dao: TodoDAO, baseUrl: String) = Todo(
     id = dao.id.value.toString(),
     userId = dao.userId.toString(),
-    title = dao.title,
+    refreshToken = dao.refreshToken,
+    authToken = dao.authToken,
+    createdAt = dao.createdAt,
+)
+
+fun laundryServiceDAOToModel(dao: LaundryServiceDAO, baseUrl: String) = LaundryService(
+    id = dao.id.value.toString(),
+    userId = dao.userId.toString(),
+    name = dao.name,
     description = dao.description,
-    isDone =  dao.isDone,
-    cover = dao.cover,
-    urlCover = buildImageUrl(baseUrl, dao.cover ?: "/uploads/defaults/cover.png"),
+    price = dao.price.toDouble(),
+    unit = dao.unit,
+    estimatedDays = dao.estimatedDays,
+    image = dao.image,
+    urlImage = buildImageUrl(baseUrl, dao.image ?: "/uploads/defaults/service.png"),
+    isActive = dao.isActive,
     createdAt = dao.createdAt,
     updatedAt = dao.updatedAt
 )
 
-/**
- * Membangun URL publik gambar dari path relatif.
- * Contoh: "uploads/plants/uuid.png" → "http://host:port/static/plants/uuid.png"
- *
- * Folder "uploads/" pada path relatif dipetakan ke route "/static/"
- * yang dilayani oleh Ktor Static Content plugin.
- */
-fun buildImageUrl(baseUrl: String, pathGambar: String): String {
-    // Hilangkan prefix "uploads/" dan ganti dengan "/static/"
+fun laundryOrderDAOToModel(dao: LaundryOrderDAO, serviceName: String = "") = LaundryOrder(
+    id = dao.id.value.toString(),
+    userId = dao.userId.toString(),
+    serviceId = dao.serviceId.toString(),
+    serviceName = serviceName,
+    customerName = dao.customerName,
+    customerPhone = dao.customerPhone,
+    quantity = dao.quantity.toDouble(),
+    totalPrice = dao.totalPrice.toDouble(),
+    status = dao.status,
+    notes = dao.notes,
+    pickupDate = dao.pickupDate,
+    deliveryDate = dao.deliveryDate,
+    createdAt = dao.createdAt,
+    updatedAt = dao.updatedAt
+)
 
+fun buildImageUrl(baseUrl: String, pathGambar: String): String {
     val relativePath = pathGambar.removePrefix("uploads/")
     return "$baseUrl/static/$relativePath"
 }

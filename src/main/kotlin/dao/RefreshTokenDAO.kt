@@ -14,18 +14,3 @@ class RefreshTokenDAO(id: EntityID<UUID>) : Entity<UUID>(id) {
     var authToken by RefreshTokenTable.authToken
     var createdAt by RefreshTokenTable.createdAt
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

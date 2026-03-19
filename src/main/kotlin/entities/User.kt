@@ -8,12 +8,12 @@ import java.util.UUID
 
 @Serializable
 data class User(
-    var id : String = UUID.randomUUID().toString(),
+    var id: String = UUID.randomUUID().toString(),
     var name: String,
     var username: String,
     var password: String,
-    var photo: String? = null, // Path relatif file di server
-    var urlPhoto: String = "", // URL publik yang dapat diakses langsung
+    var photo: String? = null,
+    var urlPhoto: String = "",
 
     @Contextual
     val createdAt: Instant = Clock.System.now(),
