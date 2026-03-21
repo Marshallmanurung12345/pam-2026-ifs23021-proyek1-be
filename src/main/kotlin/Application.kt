@@ -16,6 +16,7 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.contextual
+import org.delcom.helpers.InstantSerializer
 import org.delcom.helpers.JWTConstants
 import org.delcom.helpers.configureDatabases
 import org.delcom.helpers.configureStaticFiles
@@ -28,47 +29,32 @@ fun main(args: Array<String>) {
         directory = "."
         ignoreIfMissing = false
     }
-
     dotenv.entries().forEach {
         System.setProperty(it.key, it.value)
     }
-
     EngineMain.main(args)
 }
 
 fun Application.module() {
-
     val jwtSecret = environment.config.property("ktor.jwt.secret").getString()
 
     install(Authentication) {
         jwt(JWTConstants.NAME) {
             realm = JWTConstants.REALM
-
             verifier(
-                JWT
-                    .require(Algorithm.HMAC256(jwtSecret))
+                JWT.require(Algorithm.HMAC256(jwtSecret))
                     .withIssuer(JWTConstants.ISSUER)
                     .withAudience(JWTConstants.AUDIENCE)
                     .build()
             )
-
             validate { credential ->
-                val userId = credential.payload
-                    .getClaim("userId")
-                    .asString()
-
-                if (!userId.isNullOrBlank())
-                    JWTPrincipal(credential.payload)
-                else null
+                val userId = credential.payload.getClaim("userId").asString()
+                if (!userId.isNullOrBlank()) JWTPrincipal(credential.payload) else null
             }
-
             challenge { _, _ ->
                 call.respond(
                     HttpStatusCode.Unauthorized,
-                    mapOf(
-                        "status" to "error",
-                        "message" to "Token tidak valid"
-                    )
+                    mapOf("status" to "error", "message" to "Token tidak valid")
                 )
             }
         }
