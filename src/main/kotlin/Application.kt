@@ -77,20 +77,17 @@ fun Application.module() {
 
     install(CORS) {
         anyHost()
-
         allowMethod(HttpMethod.Get)
         allowMethod(HttpMethod.Post)
         allowMethod(HttpMethod.Put)
         allowMethod(HttpMethod.Delete)
         allowMethod(HttpMethod.Patch)
         allowMethod(HttpMethod.Options)
-
         allowHeader(HttpHeaders.ContentType)
         allowHeader(HttpHeaders.Authorization)
         allowHeader(HttpHeaders.Accept)
         allowHeader(HttpHeaders.Origin)
         allowHeader(HttpHeaders.AccessControlAllowOrigin)
-
         allowCredentials = true
         exposeHeader(HttpHeaders.ContentDisposition)
     }
@@ -101,7 +98,6 @@ fun Application.module() {
                 explicitNulls = false
                 prettyPrint = true
                 ignoreUnknownKeys = true
-                // Daftarkan serializer untuk Instant agar tidak crash
                 serializersModule = SerializersModule {
                     contextual(Instant::class, InstantSerializer)
                 }
