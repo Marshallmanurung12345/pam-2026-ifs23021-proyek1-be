@@ -18,7 +18,6 @@ data class LaundryService(
     var image: String? = null,
     var urlImage: String = "",
     var isActive: Boolean = true,
-
     @Contextual
     val createdAt: Instant = Clock.System.now(),
     @Contextual

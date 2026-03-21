@@ -14,7 +14,6 @@ data class User(
     var password: String,
     var photo: String? = null,
     var urlPhoto: String = "",
-
     @Contextual
     val createdAt: Instant = Clock.System.now(),
     @Contextual

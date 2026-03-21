@@ -16,7 +16,6 @@ data class LaundryOrderRequest(
     var totalPrice: Double = 0.0,
     var status: String = "pending",
     var notes: String? = null,
-
     @Contextual
     var pickupDate: Instant? = null,
     @Contextual
