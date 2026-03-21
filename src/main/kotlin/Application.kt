@@ -12,7 +12,11 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.response.*
+import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
+import org.delcom.helpers.InstantSerializer
 import org.delcom.helpers.JWTConstants
 import org.delcom.helpers.configureDatabases
 import org.delcom.helpers.configureStaticFiles
@@ -97,6 +101,10 @@ fun Application.module() {
                 explicitNulls = false
                 prettyPrint = true
                 ignoreUnknownKeys = true
+                // Daftarkan serializer untuk Instant agar tidak crash
+                serializersModule = SerializersModule {
+                    contextual(Instant::class, InstantSerializer)
+                }
             }
         )
     }
