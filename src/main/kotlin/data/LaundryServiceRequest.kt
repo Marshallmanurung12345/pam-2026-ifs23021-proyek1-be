@@ -34,6 +34,5 @@ data class LaundryServiceRequest(
         estimatedDays = estimatedDays,
         image = image,
         isActive = isActive,
-        updatedAt = Clock.System.now()
     )
 }

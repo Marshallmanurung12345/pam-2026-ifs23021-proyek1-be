@@ -22,8 +22,8 @@ fun userDAOToModel(dao: UserDAO, baseUrl: String) = User(
     password = dao.password,
     photo = dao.photo,
     urlPhoto = buildImageUrl(baseUrl, dao.photo ?: "/uploads/defaults/user.png"),
-    createdAt = dao.createdAt,
-    updatedAt = dao.updatedAt
+    createdAt = dao.createdAt.toString(),
+    updatedAt = dao.updatedAt.toString()
 )
 
 fun refreshTokenDAOToModel(dao: RefreshTokenDAO) = RefreshToken(
@@ -31,7 +31,7 @@ fun refreshTokenDAOToModel(dao: RefreshTokenDAO) = RefreshToken(
     userId = dao.userId.toString(),
     refreshToken = dao.refreshToken,
     authToken = dao.authToken,
-    createdAt = dao.createdAt,
+    createdAt = dao.createdAt.toString(),
 )
 
 fun laundryServiceDAOToModel(dao: LaundryServiceDAO, baseUrl: String) = LaundryService(
@@ -45,8 +45,8 @@ fun laundryServiceDAOToModel(dao: LaundryServiceDAO, baseUrl: String) = LaundryS
     image = dao.image,
     urlImage = buildImageUrl(baseUrl, dao.image ?: "/uploads/defaults/service.png"),
     isActive = dao.isActive,
-    createdAt = dao.createdAt,
-    updatedAt = dao.updatedAt
+    createdAt = dao.createdAt.toString(),
+    updatedAt = dao.updatedAt.toString()
 )
 
 fun laundryOrderDAOToModel(dao: LaundryOrderDAO, serviceName: String = "") = LaundryOrder(
@@ -60,10 +60,10 @@ fun laundryOrderDAOToModel(dao: LaundryOrderDAO, serviceName: String = "") = Lau
     totalPrice = dao.totalPrice.toDouble(),
     status = dao.status,
     notes = dao.notes,
-    pickupDate = dao.pickupDate,
-    deliveryDate = dao.deliveryDate,
-    createdAt = dao.createdAt,
-    updatedAt = dao.updatedAt
+    pickupDate = dao.pickupDate?.toString(),
+    deliveryDate = dao.deliveryDate?.toString(),
+    createdAt = dao.createdAt.toString(),
+    updatedAt = dao.updatedAt.toString()
 )
 
 fun buildImageUrl(baseUrl: String, pathGambar: String): String {

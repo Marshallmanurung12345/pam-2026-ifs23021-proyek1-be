@@ -13,14 +13,10 @@ import java.util.*
 class RefreshTokenRepository : IRefreshTokenRepository {
 
     override suspend fun getByToken(refreshToken: String, authToken: String): RefreshToken? = suspendTransaction {
-        RefreshTokenDAO
-            .find {
-                (RefreshTokenTable.refreshToken eq refreshToken) and
-                (RefreshTokenTable.authToken eq authToken)
-            }
-            .limit(1)
-            .map(::refreshTokenDAOToModel)
-            .firstOrNull()
+        RefreshTokenDAO.find {
+            (RefreshTokenTable.refreshToken eq refreshToken) and
+                    (RefreshTokenTable.authToken eq authToken)
+        }.limit(1).map(::refreshTokenDAOToModel).firstOrNull()
     }
 
     override suspend fun create(newRefreshToken: RefreshToken): String = suspendTransaction {
@@ -28,15 +24,13 @@ class RefreshTokenRepository : IRefreshTokenRepository {
             userId = UUID.fromString(newRefreshToken.userId)
             refreshToken = newRefreshToken.refreshToken
             authToken = newRefreshToken.authToken
-            createdAt = newRefreshToken.createdAt
+            createdAt = kotlinx.datetime.Clock.System.now()
         }
         dao.id.value.toString()
     }
 
     override suspend fun delete(authToken: String): Boolean = suspendTransaction {
-        val rows = RefreshTokenTable.deleteWhere {
-            RefreshTokenTable.authToken eq authToken
-        }
+        val rows = RefreshTokenTable.deleteWhere { RefreshTokenTable.authToken eq authToken }
         rows >= 1
     }
 

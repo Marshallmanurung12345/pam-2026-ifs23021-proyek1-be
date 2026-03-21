@@ -1,8 +1,5 @@
 package org.delcom.data
 
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import org.delcom.entities.LaundryOrder
 
@@ -16,10 +13,8 @@ data class LaundryOrderRequest(
     var totalPrice: Double = 0.0,
     var status: String = "pending",
     var notes: String? = null,
-    @Contextual
-    var pickupDate: Instant? = null,
-    @Contextual
-    var deliveryDate: Instant? = null,
+    var pickupDate: String? = null,
+    var deliveryDate: String? = null,
 ) {
     fun toMap(): Map<String, Any?> = mapOf(
         "userId" to userId,
@@ -42,6 +37,5 @@ data class LaundryOrderRequest(
         notes = notes,
         pickupDate = pickupDate,
         deliveryDate = deliveryDate,
-        updatedAt = Clock.System.now()
     )
 }

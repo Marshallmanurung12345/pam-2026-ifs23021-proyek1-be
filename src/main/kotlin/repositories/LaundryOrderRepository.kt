@@ -1,6 +1,5 @@
 package org.delcom.repositories
 
-// Tambahkan baris ini setelah import SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.delcom.dao.LaundryOrderDAO
 import org.delcom.dao.LaundryServiceDAO
@@ -20,35 +19,24 @@ class LaundryOrderRepository : ILaundryOrderRepository {
     private fun buildCondition(userId: String, search: String, status: String?): Op<Boolean> {
         val userUUID = UUID.fromString(userId)
         var condition: Op<Boolean> = LaundryOrderTable.userId eq userUUID
-
         if (status != null && status.isNotBlank()) {
             condition = condition and (LaundryOrderTable.status eq status)
         }
-
         if (search.isNotBlank()) {
             val keyword = "%${search.lowercase()}%"
             condition = condition and (LaundryOrderTable.customerName.lowerCase() like keyword)
         }
-
         return condition
     }
 
     override suspend fun getAll(
-        userId: String,
-        search: String,
-        status: String?,
-        page: Int,
-        limit: Int
+        userId: String, search: String, status: String?, page: Int, limit: Int
     ): List<LaundryOrder> = suspendTransaction {
         val condition = buildCondition(userId, search, status)
         val offset = ((page - 1) * limit).toLong()
-
-        LaundryOrderDAO
-            .find { condition }
+        LaundryOrderDAO.find { condition }
             .orderBy(LaundryOrderTable.createdAt to SortOrder.DESC)
-            // SESUDAH (ganti dengan ini):
-            .limit(limit)
-            .offset(offset)
+            .limit(limit).offset(offset)
             .map { orderDAO ->
                 val serviceName = LaundryServiceDAO
                     .find { LaundryServiceTable.id eq orderDAO.serviceId }
@@ -58,24 +46,21 @@ class LaundryOrderRepository : ILaundryOrderRepository {
     }
 
     override suspend fun countAll(userId: String, search: String, status: String?): Long = suspendTransaction {
-        val condition = buildCondition(userId, search, status)
-        LaundryOrderDAO.find { condition }.count()
+        LaundryOrderDAO.find { buildCondition(userId, search, status) }.count()
     }
 
     override suspend fun getById(orderId: String): LaundryOrder? = suspendTransaction {
         val orderDAO = LaundryOrderDAO
             .find { LaundryOrderTable.id eq UUID.fromString(orderId) }
-            .limit(1)
-            .firstOrNull() ?: return@suspendTransaction null
-
+            .limit(1).firstOrNull() ?: return@suspendTransaction null
         val serviceName = LaundryServiceDAO
             .find { LaundryServiceTable.id eq orderDAO.serviceId }
             .firstOrNull()?.name ?: ""
-
         laundryOrderDAOToModel(orderDAO, serviceName)
     }
 
     override suspend fun create(order: LaundryOrder): String = suspendTransaction {
+        val now = kotlinx.datetime.Clock.System.now()
         val dao = LaundryOrderDAO.new {
             userId = UUID.fromString(order.userId)
             serviceId = UUID.fromString(order.serviceId)
@@ -85,23 +70,23 @@ class LaundryOrderRepository : ILaundryOrderRepository {
             totalPrice = order.totalPrice.toBigDecimal()
             status = order.status
             notes = order.notes
-            pickupDate = order.pickupDate
-            deliveryDate = order.deliveryDate
-            createdAt = order.createdAt
-            updatedAt = order.updatedAt
+            pickupDate = order.pickupDate?.let {
+                try { kotlinx.datetime.Instant.parse(it) } catch (e: Exception) { null }
+            }
+            deliveryDate = order.deliveryDate?.let {
+                try { kotlinx.datetime.Instant.parse(it) } catch (e: Exception) { null }
+            }
+            createdAt = now
+            updatedAt = now
         }
         dao.id.value.toString()
     }
 
     override suspend fun update(userId: String, orderId: String, newOrder: LaundryOrder): Boolean = suspendTransaction {
-        val dao = LaundryOrderDAO
-            .find {
-                (LaundryOrderTable.id eq UUID.fromString(orderId)) and
-                (LaundryOrderTable.userId eq UUID.fromString(userId))
-            }
-            .limit(1)
-            .firstOrNull()
-
+        val dao = LaundryOrderDAO.find {
+            (LaundryOrderTable.id eq UUID.fromString(orderId)) and
+                    (LaundryOrderTable.userId eq UUID.fromString(userId))
+        }.limit(1).firstOrNull()
         if (dao != null) {
             dao.serviceId = UUID.fromString(newOrder.serviceId)
             dao.customerName = newOrder.customerName
@@ -110,22 +95,22 @@ class LaundryOrderRepository : ILaundryOrderRepository {
             dao.totalPrice = newOrder.totalPrice.toBigDecimal()
             dao.status = newOrder.status
             dao.notes = newOrder.notes
-            dao.pickupDate = newOrder.pickupDate
-            dao.deliveryDate = newOrder.deliveryDate
-            dao.updatedAt = newOrder.updatedAt
+            dao.pickupDate = newOrder.pickupDate?.let {
+                try { kotlinx.datetime.Instant.parse(it) } catch (e: Exception) { null }
+            }
+            dao.deliveryDate = newOrder.deliveryDate?.let {
+                try { kotlinx.datetime.Instant.parse(it) } catch (e: Exception) { null }
+            }
+            dao.updatedAt = kotlinx.datetime.Clock.System.now()
             true
         } else false
     }
 
     override suspend fun updateStatus(userId: String, orderId: String, status: String): Boolean = suspendTransaction {
-        val dao = LaundryOrderDAO
-            .find {
-                (LaundryOrderTable.id eq UUID.fromString(orderId)) and
-                (LaundryOrderTable.userId eq UUID.fromString(userId))
-            }
-            .limit(1)
-            .firstOrNull()
-
+        val dao = LaundryOrderDAO.find {
+            (LaundryOrderTable.id eq UUID.fromString(orderId)) and
+                    (LaundryOrderTable.userId eq UUID.fromString(userId))
+        }.limit(1).firstOrNull()
         if (dao != null) {
             dao.status = status
             dao.updatedAt = kotlinx.datetime.Clock.System.now()
@@ -136,7 +121,7 @@ class LaundryOrderRepository : ILaundryOrderRepository {
     override suspend fun delete(userId: String, orderId: String): Boolean = suspendTransaction {
         val rows = LaundryOrderTable.deleteWhere {
             (LaundryOrderTable.id eq UUID.fromString(orderId)) and
-            (LaundryOrderTable.userId eq UUID.fromString(userId))
+                    (LaundryOrderTable.userId eq UUID.fromString(userId))
         }
         rows >= 1
     }

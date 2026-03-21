@@ -1,8 +1,5 @@
 package org.delcom.entities
 
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import java.util.UUID
 
@@ -12,7 +9,5 @@ data class RefreshToken(
     var userId: String,
     var refreshToken: String,
     var authToken: String,
-
-    @Contextual
-    val createdAt: Instant = Clock.System.now(),
+    var createdAt: String = "",
 )

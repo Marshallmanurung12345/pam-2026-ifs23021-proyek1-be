@@ -1,8 +1,5 @@
 package org.delcom.entities
 
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import java.util.UUID
 
@@ -18,12 +15,8 @@ data class LaundryOrder(
     var totalPrice: Double,
     var status: String = "pending",
     var notes: String? = null,
-    @Contextual
-    var pickupDate: Instant? = null,
-    @Contextual
-    var deliveryDate: Instant? = null,
-    @Contextual
-    val createdAt: Instant = Clock.System.now(),
-    @Contextual
-    var updatedAt: Instant = Clock.System.now(),
+    var pickupDate: String? = null,
+    var deliveryDate: String? = null,
+    var createdAt: String = "",
+    var updatedAt: String = "",
 )

@@ -1,6 +1,5 @@
 package org.delcom.data
 
-import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
 import org.delcom.entities.User
 
@@ -22,6 +21,5 @@ data class AuthRequest(
         name = name,
         username = username,
         password = password,
-        updatedAt = Clock.System.now()
     )
 }

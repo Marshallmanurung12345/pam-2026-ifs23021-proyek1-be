@@ -12,11 +12,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.response.*
-import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.contextual
-import org.delcom.helpers.InstantSerializer
 import org.delcom.helpers.JWTConstants
 import org.delcom.helpers.configureDatabases
 import org.delcom.helpers.configureStaticFiles
@@ -25,13 +21,8 @@ import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
 
 fun main(args: Array<String>) {
-    val dotenv = dotenv {
-        directory = "."
-        ignoreIfMissing = false
-    }
-    dotenv.entries().forEach {
-        System.setProperty(it.key, it.value)
-    }
+    val dotenv = dotenv { directory = "."; ignoreIfMissing = false }
+    dotenv.entries().forEach { System.setProperty(it.key, it.value) }
     EngineMain.main(args)
 }
 
@@ -78,16 +69,11 @@ fun Application.module() {
     }
 
     install(ContentNegotiation) {
-        json(
-            Json {
-                explicitNulls = false
-                prettyPrint = true
-                ignoreUnknownKeys = true
-                serializersModule = SerializersModule {
-                    contextual(Instant::class, InstantSerializer)
-                }
-            }
-        )
+        json(Json {
+            explicitNulls = false
+            prettyPrint = true
+            ignoreUnknownKeys = true
+        })
     }
 
     install(Koin) {
